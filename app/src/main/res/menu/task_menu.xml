@@ -2,11 +2,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/itemAddTask"
+        android:id="@+id/item_add_task"
         android:title="Add Task" />
 
     <item
-        android:id="@+id/itemShowCompletedTasks"
+        android:id="@+id/item_show_completed_tasks"
         android:title="Show completed tasks" />
 
 </menu>

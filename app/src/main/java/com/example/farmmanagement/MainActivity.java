@@ -5,24 +5,28 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
-import androidx.navigation.ui.AppBarConfiguration;
-import androidx.navigation.ui.NavigationUI;
 
 import com.google.android.material.navigation.NavigationBarView;
 
-import java.util.ArrayList;
-
 public class MainActivity extends AppCompatActivity
 {
+	private AlertDialog.Builder dialogBuilder;
+	private AlertDialog dialog;
+	private EditText edtTaskName;
+	private Button btnConfirmTask, btnCancelTask;
+
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -81,18 +85,32 @@ public class MainActivity extends AppCompatActivity
 	@Override
 	public boolean onOptionsItemSelected(@NonNull MenuItem item)
 	{
-//		if(item.getItemId() == R.id.itemAddTask)
-//		{
+		if(item.getItemId() == R.id.item_add_task)
+		{
+			//TODO .............................
 //			startActivity(new Intent(MainActivity.this, AddTaskActivity.class));
-//		}
+		}
 //		else if(item.getItemId() == R.id.itemShowCompletedTasks)
 //		{
 //			boolean notShowCompletedTasks = !Utils.isShowCompletedTasks();
 //			item.setTitle((notShowCompletedTasks ? "Hide" : "Show") + " completed tasks");
 //			Utils.setShowCompletedTasks(notShowCompletedTasks);
 //		}
-//		return true;
+		return true;
+	}
 
-		return false;
+
+	private void createNewTaskDialog()
+	{
+		dialogBuilder = new AlertDialog.Builder(this);
+		final View contactPopupView = getLayoutInflater().inflate(R.layout.add_task, null);
+
+//		edtAreaName = contactPopupView.findViewById(R.id.edtAreaName);
+//		btnConfirmArea = contactPopupView.findViewById(R.id.btnConfirmArea);
+//		btnCancelArea = contactPopupView.findViewById(R.id.btnCancelArea);
+
+		dialogBuilder.setView(contactPopupView);
+		dialog = dialogBuilder.create();
+		dialog.show();
 	}
 }
