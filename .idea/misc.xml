@@ -3,12 +3,15 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/matij/AndroidStudioProjects/FarmManagement/app/src/main/res/drawable/error_outline.xml" value="0.38125" />
         <entry key="..\:/Users/matij/AndroidStudioProjects/FarmManagement/app/src/main/res/drawable/ic_check.xml" value="0.38125" />
         <entry key="..\:/Users/matij/AndroidStudioProjects/FarmManagement/app/src/main/res/layout/activity_main.xml" value="0.33" />
+        <entry key="..\:/Users/matij/AndroidStudioProjects/FarmManagement/app/src/main/res/layout/activity_task.xml" value="0.3651041666666667" />
         <entry key="..\:/Users/matij/AndroidStudioProjects/FarmManagement/app/src/main/res/layout/add_task.xml" value="0.3651041666666667" />
         <entry key="..\:/Users/matij/AndroidStudioProjects/FarmManagement/app/src/main/res/layout/fragment_calendar.xml" value="0.3651041666666667" />
         <entry key="..\:/Users/matij/AndroidStudioProjects/FarmManagement/app/src/main/res/layout/fragment_dashboard.xml" value="0.3651041666666667" />
         <entry key="..\:/Users/matij/AndroidStudioProjects/FarmManagement/app/src/main/res/layout/fragment_home.xml" value="0.3651041666666667" />
+        <entry key="..\:/Users/matij/AndroidStudioProjects/FarmManagement/app/src/main/res/layout/task_item.xml" value="0.3651041666666667" />
         <entry key="..\:/Users/matij/AndroidStudioProjects/FarmManagement/app/src/main/res/menu/task_menu.xml" value="0.3651041666666667" />
       </map>
     </option>

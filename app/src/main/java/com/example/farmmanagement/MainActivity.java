@@ -1,13 +1,17 @@
 package com.example.farmmanagement;
 
 import android.annotation.SuppressLint;
-import android.content.Intent;
+import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.Spinner;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -17,14 +21,27 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationBarView;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
+
+import java.util.Calendar;
+import java.util.Date;
 
 public class MainActivity extends AppCompatActivity
 {
+	private Fragment selectedFragment;
+
+	// Dialog for new task
 	private AlertDialog.Builder dialogBuilder;
 	private AlertDialog dialog;
-	private EditText edtTaskName;
-	private Button btnConfirmTask, btnCancelTask;
+	private EditText taskName, taskDesc;
+	private Button btnShowDatePicker;
+	private FloatingActionButton fabTaskConfirm;
+	private TextView txtDate;
+	private Spinner spnAreaName;
+	private Calendar deadlineDate;
 
 
 	@Override
@@ -51,7 +68,6 @@ public class MainActivity extends AppCompatActivity
 			@Override
 			public boolean onNavigationItemSelected(@NonNull MenuItem item)
 			{
-				Fragment selectedFragment = null;
 				switch(item.getItemId())
 				{
 					case R.id.navigation_home:
@@ -87,30 +103,15 @@ public class MainActivity extends AppCompatActivity
 	{
 		if(item.getItemId() == R.id.item_add_task)
 		{
-			//TODO .............................
-//			startActivity(new Intent(MainActivity.this, AddTaskActivity.class));
+			new TaskDialog(this, MainActivity.this, selectedFragment, -1);
 		}
-//		else if(item.getItemId() == R.id.itemShowCompletedTasks)
-//		{
-//			boolean notShowCompletedTasks = !Utils.isShowCompletedTasks();
-//			item.setTitle((notShowCompletedTasks ? "Hide" : "Show") + " completed tasks");
-//			Utils.setShowCompletedTasks(notShowCompletedTasks);
-//		}
+		else if(item.getItemId() == R.id.item_show_completed_tasks)
+		{
+			boolean notShowCompletedTasks = !Utils.isShowCompletedTasks();
+			item.setTitle((notShowCompletedTasks ? "Hide" : "Show") + " completed tasks");
+			Utils.setShowCompletedTasks(notShowCompletedTasks);
+			selectedFragment.onResume(); // used to call notifiedDataSetChanged()
+		}
 		return true;
-	}
-
-
-	private void createNewTaskDialog()
-	{
-		dialogBuilder = new AlertDialog.Builder(this);
-		final View contactPopupView = getLayoutInflater().inflate(R.layout.add_task, null);
-
-//		edtAreaName = contactPopupView.findViewById(R.id.edtAreaName);
-//		btnConfirmArea = contactPopupView.findViewById(R.id.btnConfirmArea);
-//		btnCancelArea = contactPopupView.findViewById(R.id.btnCancelArea);
-
-		dialogBuilder.setView(contactPopupView);
-		dialog = dialogBuilder.create();
-		dialog.show();
 	}
 }

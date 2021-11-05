@@ -2,6 +2,9 @@
     <string name="app_name">FarmManagement</string>
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
-    <string name="title_notifications">Notifications</string>
+    <string name="title_calendar">Calendar</string>
     <string name="title_activity_maps">MapsActivity</string>
+    <string name="title_activity_overview">FarmManagement</string>
+    <string name="title_activity_add_task">Add new Task</string>
+    <string name="title_map">Map</string>
 </resources>
