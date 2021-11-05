@@ -3,8 +3,6 @@ package com.example.farmmanagement;
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.service.controls.templates.ControlButton;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -17,9 +15,9 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 
 import java.util.Calendar;
+import java.util.Date;
 
 public class TaskDialog implements DatePickerDialog.OnDateSetListener
 {
@@ -37,13 +35,17 @@ public class TaskDialog implements DatePickerDialog.OnDateSetListener
 	private Spinner spnAreaName;
 	private Calendar deadlineDate;
 
-
-	public TaskDialog(Activity activity, Context context, Fragment selectedFragment, int taskId)
+	public TaskDialog(Activity activity, Context context, Fragment selectedFragment, int taskId, Date currentDate)
 	{
 		this.activity = activity;
 		this.context = context;
 		this.selectedFragment = selectedFragment;
 		this.taskId = taskId;
+
+		if(currentDate == null)
+		{
+			currentDate = new Date();
+		}
 
 		dialogBuilder = new AlertDialog.Builder(context);
 		final View contactPopupView = activity.getLayoutInflater().inflate(R.layout.add_task, null);
@@ -59,15 +61,16 @@ public class TaskDialog implements DatePickerDialog.OnDateSetListener
 				taskName.setText(editTask.getName());
 				taskDesc.setText(editTask.getDescription());
 				txtDate.setText(editTask.getDeadlineDateStr());
-//				taskAreaName = editTask.getAreaName(); //TODO
+//				taskAreaName = editTask.getAreaName(); //TODO areas...
 			}
 		}
 
 		// Date stuff
-		String currentDate = deadlineDate.get(Calendar.DAY_OF_MONTH) + "/" +
+		deadlineDate.setTime(currentDate);
+		String currentDateStr = deadlineDate.get(Calendar.DAY_OF_MONTH) + "/" +
 				(deadlineDate.get(Calendar.MONTH) + 1) + "/" +
 				deadlineDate.get(Calendar.YEAR);
-		txtDate.setText(currentDate);
+		txtDate.setText("Deadline date: " + currentDateStr);
 
 		setOnClickListeners();
 

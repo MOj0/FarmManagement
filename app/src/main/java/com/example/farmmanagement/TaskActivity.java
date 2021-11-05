@@ -2,7 +2,6 @@ package com.example.farmmanagement;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -67,33 +66,23 @@ public class TaskActivity extends AppCompatActivity
 	private void setButtonListeners(Task currentTask)
 	{
 		btnCompleteTask.setEnabled(!currentTask.isCompleted());
-		btnCompleteTask.setOnClickListener(new View.OnClickListener()
-		{
-			@Override
-			public void onClick(View v)
+		btnCompleteTask.setOnClickListener(v -> {
+			if(Utils.getInstance(TaskActivity.this).setTaskCompleted(currentTask))
 			{
-				if(Utils.getInstance(TaskActivity.this).setTaskCompleted(currentTask))
-				{
-					Toast.makeText(TaskActivity.this, "Task " + currentTask.getName() + " completed!", Toast.LENGTH_SHORT).show();
-					btnCompleteTask.setEnabled(false);
-				}
+				Toast.makeText(TaskActivity.this, "Task " + currentTask.getName() + " completed!", Toast.LENGTH_SHORT).show();
+				btnCompleteTask.setEnabled(false);
 			}
 		});
 
 		btnEditTask.setOnClickListener(v ->
-				new TaskDialog(this, TaskActivity.this, null, currentTask.getId()));
+				new TaskDialog(this, TaskActivity.this, null, currentTask.getId(), null));
 
 
-		btnDeleteTask.setOnClickListener(new View.OnClickListener()
-		{
-			@Override
-			public void onClick(View v)
+		btnDeleteTask.setOnClickListener(v -> {
+			if(Utils.getInstance(TaskActivity.this).deleteTask(currentTask))
 			{
-				if(Utils.getInstance(TaskActivity.this).deleteTask(currentTask))
-				{
-					Toast.makeText(TaskActivity.this, "Deleted task " + currentTask.getName(), Toast.LENGTH_SHORT).show();
-					onBackPressed();
-				}
+				Toast.makeText(TaskActivity.this, "Deleted task " + currentTask.getName(), Toast.LENGTH_SHORT).show();
+				onBackPressed();
 			}
 		});
 	}

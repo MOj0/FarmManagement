@@ -31,6 +31,12 @@ public class CalendarFragment extends Fragment
 	private SimpleDateFormat dateFormatMonth;
 	private TextView txtYearMonth;
 
+	private CompactCalendarView compactCalendarView;
+	private ArrayAdapter<String> taskNameAdapter;
+	private Date mDateClicked;
+	private ArrayList<Task> tasks;
+	private ListView listView;
+
 	public View onCreateView(@NonNull LayoutInflater inflater,
 							 ViewGroup container, Bundle savedInstanceState)
 	{
@@ -47,57 +53,73 @@ public class CalendarFragment extends Fragment
 		txtYearMonth = view.findViewById(R.id.txtYearMonth);
 		txtYearMonth.setText(dateFormatMonth.format(new Date()));
 
-		final CompactCalendarView compactCalendarView = view.findViewById(R.id.compactCalendarView);
+		compactCalendarView = view.findViewById(R.id.compactCalendarView);
 		compactCalendarView.setUseThreeLetterAbbreviation(true);
 
-//		ArrayList<Task> tasks = Utils.getInstance(getActivity()).getTasks();
-//		for(Task task : tasks)
-//		{
-//			compactCalendarView.addEvent(new Event(Color.BLUE, task.getDeadlineDate().getTimeInMillis(), task));
-//		}
-//
-//		compactCalendarView.setListener(new CompactCalendarView.CompactCalendarViewListener()
-//		{
-//			@Override
-//			public void onDayClick(Date dateClicked)
-//			{
-//				BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(requireContext());
-//				bottomSheetDialog.setContentView(R.layout.bottom_sheet_task_dialog);
-//				bottomSheetDialog.setCanceledOnTouchOutside(true);
-//
-//				List<Event> events = compactCalendarView.getEvents(dateClicked);
-//				final ArrayList<Task> tasks = events.stream().map(e -> (Task) e.getData()).collect(Collectors.toCollection(ArrayList::new));
-//
-//				ArrayList<String> taskNames = tasks.stream().map(Task::getName).collect(Collectors.toCollection(ArrayList::new));
-//				ArrayAdapter<String> taskNameAdapter =
-//						new ArrayAdapter<>(requireContext(), android.R.layout.simple_list_item_1, taskNames);
-//
-//				ListView listView = bottomSheetDialog.findViewById(R.id.listViewTasks);
-//				assert listView != null;
-//				listView.setAdapter(taskNameAdapter);
-//
-//				listView.setOnItemClickListener((parent, view1, position, id) -> {
-//					Intent intent = new Intent(requireContext(), TaskActivity.class);
-//					Task clickedTask = tasks.get(position);
-//					intent.putExtra(TaskActivity.TASK_ID_KEY, clickedTask.getId());
-//					startActivity(intent);
-//				});
-//
-//				Button btnAddTask = bottomSheetDialog.findViewById(R.id.btnAddTask);
-//				assert btnAddTask != null;
-//				btnAddTask.setOnClickListener(v -> {
-//					Intent intent = new Intent(requireContext(), AddTaskActivity.class);
-//					intent.putExtra("date", dateClicked);
-//					startActivity(intent);
-//				});
-//				bottomSheetDialog.show();
-//			}
-//
-//			@Override
-//			public void onMonthScroll(Date firstDayOfNewMonth)
-//			{
-//				txtYearMonth.setText(dateFormatMonth.format(firstDayOfNewMonth));
-//			}
-//		});
+		getEvents();
+
+		compactCalendarView.setListener(new CompactCalendarView.CompactCalendarViewListener()
+		{
+			@Override
+			public void onDayClick(Date dateClicked)
+			{
+				mDateClicked = dateClicked;
+				BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(requireContext());
+				bottomSheetDialog.setContentView(R.layout.bottom_sheet_task_dialog);
+				bottomSheetDialog.setCanceledOnTouchOutside(true);
+
+				List<Event> events = compactCalendarView.getEvents(dateClicked);
+				tasks = events.stream().map(e -> (Task) e.getData()).collect(Collectors.toCollection(ArrayList::new));
+
+				ArrayList<String> taskNames = tasks.stream().map(Task::getName).collect(Collectors.toCollection(ArrayList::new));
+				taskNameAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_list_item_1, taskNames);
+
+				listView = bottomSheetDialog.findViewById(R.id.list_view_tasks);
+				assert listView != null;
+				listView.setAdapter(taskNameAdapter);
+
+				listView.setOnItemClickListener((parent, view1, position, id) -> {
+					Intent intent = new Intent(requireContext(), TaskActivity.class);
+					intent.putExtra(TaskActivity.TASK_ID_KEY, tasks.get(position).getId());
+					startActivity(intent);
+				});
+
+				Button btnAddTask = bottomSheetDialog.findViewById(R.id.btn_add_task);
+				assert btnAddTask != null;
+				btnAddTask.setOnClickListener(v ->
+						new TaskDialog(requireActivity(), requireContext(), requireActivity().getSupportFragmentManager().findFragmentById(R.id.fragment_container), -1, dateClicked));
+				bottomSheetDialog.show();
+			}
+
+			@Override
+			public void onMonthScroll(Date firstDayOfNewMonth)
+			{
+				txtYearMonth.setText(dateFormatMonth.format(firstDayOfNewMonth));
+			}
+		});
+	}
+
+	private void getEvents()
+	{
+		compactCalendarView.removeAllEvents();
+		ArrayList<Task> tasks = Utils.getInstance(getActivity()).getTasks();
+		tasks.forEach(t ->
+				compactCalendarView.addEvent(new Event(Color.BLUE, t.getDeadlineDate().getTimeInMillis(), t)));
+	}
+
+	@Override
+	public void onResume()
+	{
+		super.onResume();
+		if(taskNameAdapter != null)
+		{
+			getEvents();
+			List<Event> eventsOnDate = compactCalendarView.getEvents(mDateClicked);
+			tasks = eventsOnDate.stream().map(e -> (Task) e.getData()).collect(Collectors.toCollection(ArrayList::new));
+
+			taskNameAdapter.add(tasks.get(tasks.size() - 1).getName());
+			taskNameAdapter.notifyDataSetChanged();
+			listView.setAdapter(taskNameAdapter);
+		}
 	}
 }
