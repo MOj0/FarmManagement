@@ -87,7 +87,11 @@ public class CalendarFragment extends Fragment
 				Button btnAddTask = bottomSheetDialog.findViewById(R.id.btn_add_task);
 				assert btnAddTask != null;
 				btnAddTask.setOnClickListener(v ->
-						new TaskDialog(requireActivity(), requireContext(), requireActivity().getSupportFragmentManager().findFragmentById(R.id.fragment_container), -1, dateClicked));
+						new TaskDialog(requireActivity(), requireContext(),
+								requireActivity().getSupportFragmentManager().findFragmentById(R.id.fragment_container),
+								-1,
+								dateClicked,
+								null));
 				bottomSheetDialog.show();
 			}
 
@@ -116,8 +120,10 @@ public class CalendarFragment extends Fragment
 			getEvents();
 			List<Event> eventsOnDate = compactCalendarView.getEvents(mDateClicked);
 			tasks = eventsOnDate.stream().map(e -> (Task) e.getData()).collect(Collectors.toCollection(ArrayList::new));
+			ArrayList<String> taskNames = tasks.stream().map(Task::getName).collect(Collectors.toCollection(ArrayList::new));
 
-			taskNameAdapter.add(tasks.get(tasks.size() - 1).getName());
+			taskNameAdapter.clear();
+			taskNameAdapter.addAll(taskNames);
 			taskNameAdapter.notifyDataSetChanged();
 			listView.setAdapter(taskNameAdapter);
 		}

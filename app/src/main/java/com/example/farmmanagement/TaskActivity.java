@@ -75,8 +75,7 @@ public class TaskActivity extends AppCompatActivity
 		});
 
 		btnEditTask.setOnClickListener(v ->
-				new TaskDialog(this, TaskActivity.this, null, currentTask.getId(), null));
-
+				new TaskDialog(this, TaskActivity.this, null, currentTask.getId(), null, null));
 
 		btnDeleteTask.setOnClickListener(v -> {
 			if(Utils.getInstance(TaskActivity.this).deleteTask(currentTask))

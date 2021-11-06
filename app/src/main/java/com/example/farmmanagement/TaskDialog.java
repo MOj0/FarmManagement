@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -16,8 +17,10 @@ import androidx.fragment.app.Fragment;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.stream.Collectors;
 
 public class TaskDialog implements DatePickerDialog.OnDateSetListener
 {
@@ -35,7 +38,10 @@ public class TaskDialog implements DatePickerDialog.OnDateSetListener
 	private Spinner spnAreaName;
 	private Calendar deadlineDate;
 
-	public TaskDialog(Activity activity, Context context, Fragment selectedFragment, int taskId, Date currentDate)
+	private String taskAreaName;
+
+	public TaskDialog(Activity activity, Context context, Fragment selectedFragment, int taskId, Date currentDate,
+					  String selectedArea)
 	{
 		this.activity = activity;
 		this.context = context;
@@ -61,7 +67,7 @@ public class TaskDialog implements DatePickerDialog.OnDateSetListener
 				taskName.setText(editTask.getName());
 				taskDesc.setText(editTask.getDescription());
 				txtDate.setText(editTask.getDeadlineDateStr());
-//				taskAreaName = editTask.getAreaName(); //TODO areas...
+				taskAreaName = editTask.getAreaName();
 			}
 		}
 
@@ -71,6 +77,14 @@ public class TaskDialog implements DatePickerDialog.OnDateSetListener
 				(deadlineDate.get(Calendar.MONTH) + 1) + "/" +
 				deadlineDate.get(Calendar.YEAR);
 		txtDate.setText("Deadline date: " + currentDateStr);
+
+		// Area stuff
+		ArrayList<Area> areas = Utils.getInstance(context).getAreas();
+		ArrayList<String> areaNames = areas.stream().map(Area::getName).collect(Collectors.toCollection(ArrayList::new));
+		areaNames.add(0, "");
+		ArrayAdapter<String> areaAdapter = new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, areaNames);
+		spnAreaName.setAdapter(areaAdapter);
+		spnAreaName.setSelection(selectedArea == null ? 0 : areaNames.indexOf(selectedArea));
 
 		setOnClickListeners();
 
@@ -110,6 +124,7 @@ public class TaskDialog implements DatePickerDialog.OnDateSetListener
 			{
 				String name = taskName.getText().toString();
 				String desc = taskDesc.getText().toString();
+				String areaName = (String) spnAreaName.getSelectedItem();
 				if(name.isEmpty())
 				{
 					taskName.setError("Missing data");
@@ -117,12 +132,24 @@ public class TaskDialog implements DatePickerDialog.OnDateSetListener
 					return;
 				}
 
+				// Add / Edit task
 				boolean editTask = taskId != -1;
-				Task task = new Task(name, desc, deadlineDate, R.mipmap.farm);
+				Task task = new Task(name, desc, deadlineDate, R.mipmap.farm, areaName);
 				if(editTask)
 				{
 					task.setId(taskId); // Dangerous!
+
+					// Check if user changed area of task to another one
+					if(taskAreaName != null && !taskAreaName.equals(areaName))
+					{
+						Utils.getInstance(selectedFragment.requireContext()).removeTaskFromArea(taskAreaName, taskId);
+					}
 				}
+
+				ArrayList<Area> areas = Utils.getInstance(context).getAreas();
+				areas.stream().filter(a -> a.getName().equals(areaName)).findFirst().ifPresent(
+						area -> area.addTask(task));
+				Utils.getInstance(context).setAreas(areas);
 
 				boolean operationSuccessful = editTask ?
 						Utils.getInstance(context).editTask(taskId, task) : Utils.getInstance(context).addTask(task);

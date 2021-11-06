@@ -3,6 +3,7 @@ package com.example.farmmanagement;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.google.android.gms.maps.model.PolygonOptions;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -14,6 +15,8 @@ import java.util.stream.IntStream;
 public class Utils
 {
 	private static final String TASK_KEY = "tasks";
+	private static final String POLYGON_OPTIONS_KEY = "polygon_options";
+	private static final String AREA_KEY = "areas";
 
 	private static int taskId;
 	private static boolean showCompletedTasks;
@@ -28,10 +31,7 @@ public class Utils
 		taskId = 0;
 		showCompletedTasks = false;
 
-		if(getTasks() == null)
-		{
-			setTasks(new ArrayList<>());
-		}
+		init();
 
 		taskId = getTasks().stream().map(Task::getId).max(Comparator.naturalOrder()).orElse(-1) + 1;
 	}
@@ -43,6 +43,22 @@ public class Utils
 			instance = new Utils(context);
 		}
 		return instance;
+	}
+
+	private void init()
+	{
+		if(getTasks() == null)
+		{
+			setTasks(new ArrayList<>());
+		}
+		if(getPolygonOptions() == null)
+		{
+			setPolygonOptions(new ArrayList<>());
+		}
+		if(getAreas() == null)
+		{
+			setAreas(new ArrayList<>());
+		}
 	}
 
 	public static int getTaskId()
@@ -137,6 +153,52 @@ public class Utils
 		}
 		return false;
 	}
+
+	public ArrayList<PolygonOptions> getPolygonOptions()
+	{
+		Gson gson = new Gson();
+		Type type = new TypeToken<ArrayList<PolygonOptions>>()
+		{
+		}.getType();
+		return gson.fromJson(sharedPreferences.getString(POLYGON_OPTIONS_KEY, null), type);
+	}
+
+
+	public void setPolygonOptions(ArrayList<PolygonOptions> polygonOptions)
+	{
+		Gson gson = new Gson();
+		SharedPreferences.Editor editor = sharedPreferences.edit();
+		editor.putString(POLYGON_OPTIONS_KEY, gson.toJson(polygonOptions));
+		editor.apply();
+	}
+
+
+	public ArrayList<Area> getAreas()
+	{
+		Gson gson = new Gson();
+		Type type = new TypeToken<ArrayList<Area>>()
+		{
+		}.getType();
+		return gson.fromJson(sharedPreferences.getString(AREA_KEY, null), type);
+	}
+
+	public void setAreas(ArrayList<Area> areas)
+	{
+		Gson gson = new Gson();
+		SharedPreferences.Editor editor = sharedPreferences.edit();
+		editor.putString(AREA_KEY, gson.toJson(areas));
+		editor.apply();
+	}
+
+	public void removeTaskFromArea(final String areaName, final int taskId)
+	{
+		ArrayList<Area> areas = getAreas();
+		areas.stream().filter(area -> area.getName().equals(areaName))
+				.findFirst()
+				.ifPresent(a -> a.getTasks().removeIf(task -> task.getId() == taskId));
+		setAreas(areas);
+	}
+
 
 	private int getIndexById(final int id)
 	{

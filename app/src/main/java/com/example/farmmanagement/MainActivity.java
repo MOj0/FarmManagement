@@ -1,6 +1,7 @@
 package com.example.farmmanagement;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -20,34 +21,24 @@ import androidx.fragment.app.Fragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationBarView;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 
 public class MainActivity extends AppCompatActivity
 {
 	private Fragment selectedFragment;
 
-	// Dialog for new task
-	private AlertDialog.Builder dialogBuilder;
-	private AlertDialog dialog;
-	private EditText taskName, taskDesc;
-	private Button btnShowDatePicker;
-	private FloatingActionButton fabTaskConfirm;
-	private TextView txtDate;
-	private Spinner spnAreaName;
-	private Calendar deadlineDate;
-
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
 
-//		ArrayList<Area> areas = Utils.getInstance(MainActivity.this).getAreas();
-//		if(areas == null || areas.isEmpty()) // Requires at least 1 area
-//		{
-//			Intent intent = new Intent(MainActivity.this, MapsActivity.class);
-//			startActivity(intent);
-//		}
+		ArrayList<Area> areas = Utils.getInstance(MainActivity.this).getAreas();
+		if(areas == null || areas.isEmpty()) // Requires at least 1 area
+		{
+			Intent intent = new Intent(MainActivity.this, MapsActivity.class);
+			startActivity(intent);
+		}
 
 		setContentView(R.layout.activity_main);
 
@@ -96,7 +87,7 @@ public class MainActivity extends AppCompatActivity
 	{
 		if(item.getItemId() == R.id.item_add_task)
 		{
-			new TaskDialog(this, MainActivity.this, selectedFragment, -1, null);
+			new TaskDialog(this, MainActivity.this, selectedFragment, -1, null, null);
 		}
 		else if(item.getItemId() == R.id.item_show_completed_tasks)
 		{
