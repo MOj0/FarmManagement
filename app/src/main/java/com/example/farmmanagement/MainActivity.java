@@ -94,7 +94,10 @@ public class MainActivity extends AppCompatActivity
 			boolean notShowCompletedTasks = !Utils.isShowCompletedTasks();
 			item.setTitle((notShowCompletedTasks ? "Hide" : "Show") + " completed tasks");
 			Utils.setShowCompletedTasks(notShowCompletedTasks);
-			selectedFragment.onResume(); // used to call notifiedDataSetChanged()
+			if(selectedFragment != null)
+			{
+				selectedFragment.onResume(); // used to call notifiedDataSetChanged()
+			}
 		}
 		return true;
 	}

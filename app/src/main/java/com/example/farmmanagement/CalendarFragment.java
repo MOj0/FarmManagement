@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -25,6 +24,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class CalendarFragment extends Fragment
 {
@@ -32,7 +32,7 @@ public class CalendarFragment extends Fragment
 	private TextView txtYearMonth;
 
 	private CompactCalendarView compactCalendarView;
-	private ArrayAdapter<String> taskNameAdapter;
+	private TaskListAdapter taskListAdapter;
 	private Date mDateClicked;
 	private ArrayList<Task> tasks;
 	private ListView listView;
@@ -70,13 +70,14 @@ public class CalendarFragment extends Fragment
 
 				List<Event> events = compactCalendarView.getEvents(dateClicked);
 				tasks = events.stream().map(e -> (Task) e.getData()).collect(Collectors.toCollection(ArrayList::new));
-
 				ArrayList<String> taskNames = tasks.stream().map(Task::getName).collect(Collectors.toCollection(ArrayList::new));
-				taskNameAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_list_item_1, taskNames);
+				List<Integer> indexesCompleted = IntStream.range(0, tasks.size()).filter(i -> tasks.get(i).isCompleted()).boxed().collect(Collectors.toList());
+
+				taskListAdapter = new TaskListAdapter(requireContext(), android.R.layout.simple_list_item_1, taskNames, indexesCompleted);
 
 				listView = bottomSheetDialog.findViewById(R.id.list_view_tasks);
 				assert listView != null;
-				listView.setAdapter(taskNameAdapter);
+				listView.setAdapter(taskListAdapter);
 
 				listView.setOnItemClickListener((parent, view1, position, id) -> {
 					Intent intent = new Intent(requireContext(), TaskActivity.class);
@@ -115,17 +116,18 @@ public class CalendarFragment extends Fragment
 	public void onResume()
 	{
 		super.onResume();
-		if(taskNameAdapter != null)
+		if(taskListAdapter != null)
 		{
 			getEvents();
 			List<Event> eventsOnDate = compactCalendarView.getEvents(mDateClicked);
 			tasks = eventsOnDate.stream().map(e -> (Task) e.getData()).collect(Collectors.toCollection(ArrayList::new));
 			ArrayList<String> taskNames = tasks.stream().map(Task::getName).collect(Collectors.toCollection(ArrayList::new));
+			List<Integer> indexesCompleted = IntStream.range(0, tasks.size()).filter(i -> tasks.get(i).isCompleted()).boxed().collect(Collectors.toList());
 
-			taskNameAdapter.clear();
-			taskNameAdapter.addAll(taskNames);
-			taskNameAdapter.notifyDataSetChanged();
-			listView.setAdapter(taskNameAdapter);
+			taskListAdapter.clear();
+			taskListAdapter.addAll(taskNames);
+			taskListAdapter.setCompleted(indexesCompleted);
+			taskListAdapter.notifyDataSetChanged();
 		}
 	}
 }

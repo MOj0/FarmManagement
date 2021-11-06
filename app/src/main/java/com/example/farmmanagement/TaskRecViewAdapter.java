@@ -45,8 +45,8 @@ public class TaskRecViewAdapter extends RecyclerView.Adapter<TaskRecViewAdapter.
 		holder.cardView.setBackground(holder.defaultCardViewBackground);
 		if(currentTask.isCompleted())
 		{
-			holder.cardView.setBackgroundResource(R.color.light_green);
 			holder.parentRelLayout.setVisibility(Utils.isShowCompletedTasks() ? View.VISIBLE : View.GONE);
+			holder.cardView.setBackgroundResource(R.color.light_green);
 		}
 
 		holder.txtTaskName.setText(currentTask.getName());

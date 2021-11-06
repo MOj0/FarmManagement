@@ -5,17 +5,14 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.github.sundeepk.compactcalendarview.domain.Event;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -26,13 +23,14 @@ import com.google.android.material.bottomsheet.BottomSheetDialog;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class MapsFragment extends Fragment
 {
 	private GoogleMap mMap;
 	private ArrayList<Area> areas;
 	private Area selectedArea;
-	private ArrayAdapter<String> taskNameAdapter;
+	private TaskListAdapter taskListAdapter;
 	private ListView listView;
 	private ArrayList<Task> tasksInArea;
 
@@ -58,11 +56,15 @@ public class MapsFragment extends Fragment
 			mMap.setOnPolygonClickListener(polygon ->
 			{
 				final int polygonIndex = polygons.indexOf(polygon);
-
 				ArrayList<Task> tasks = Utils.getInstance(requireContext()).getTasks();
+
 				selectedArea = areas.stream().filter(a -> a.getPolygonIndex() == polygonIndex).findFirst().orElse(null);
 				assert selectedArea != null;
 				tasksInArea = tasks.stream().filter(t -> t.getAreaName().equals(selectedArea.getName())).collect(Collectors.toCollection(ArrayList::new));
+				ArrayList<String> taskNames = tasksInArea.stream().map(Task::getName).collect(Collectors.toCollection(ArrayList::new));
+				List<Integer> indexesCompleted = IntStream.range(0, tasksInArea.size()).filter(i -> tasksInArea.get(i).isCompleted()).boxed().collect(Collectors.toList());
+
+				taskListAdapter = new TaskListAdapter(requireContext(), android.R.layout.simple_list_item_1, taskNames, indexesCompleted);
 
 				BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(requireContext());
 				bottomSheetDialog.setContentView(R.layout.bottom_sheet_task_dialog);
@@ -72,12 +74,9 @@ public class MapsFragment extends Fragment
 				assert txtAreaName != null;
 				txtAreaName.setText(areas.get(polygonIndex).getName());
 
-				ArrayList<String> taskNames = tasksInArea.stream().map(Task::getName).collect(Collectors.toCollection(ArrayList::new));
-				taskNameAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_list_item_1, taskNames);
-
 				listView = bottomSheetDialog.findViewById(R.id.list_view_tasks);
 				assert listView != null;
-				listView.setAdapter(taskNameAdapter);
+				listView.setAdapter(taskListAdapter);
 
 				listView.setOnItemClickListener((parent, view1, position, id) -> {
 					Intent intent = new Intent(requireContext(), TaskActivity.class);
@@ -133,11 +132,12 @@ public class MapsFragment extends Fragment
 
 			ArrayList<String> taskNames = tasksInArea.stream().map(Task::getName)
 					.collect(Collectors.toCollection(ArrayList::new));
+			List<Integer> indexesCompleted = IntStream.range(0, tasksInArea.size()).filter(i -> tasksInArea.get(i).isCompleted()).boxed().collect(Collectors.toList());
 
-			taskNameAdapter.clear();
-			taskNameAdapter.addAll(taskNames);
-			taskNameAdapter.notifyDataSetChanged();
-			listView.setAdapter(taskNameAdapter);
+			taskListAdapter.clear();
+			taskListAdapter.addAll(taskNames);
+			taskListAdapter.setCompleted(indexesCompleted);
+			taskListAdapter.notifyDataSetChanged();
 		}
 	}
 }
