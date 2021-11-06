@@ -138,12 +138,6 @@ public class TaskDialog implements DatePickerDialog.OnDateSetListener
 				if(editTask)
 				{
 					task.setId(taskId); // Dangerous!
-
-					// Check if user changed area of task to another one
-					if(taskAreaName != null && !taskAreaName.equals(areaName))
-					{
-						Utils.getInstance(selectedFragment.requireContext()).removeTaskFromArea(taskAreaName, taskId);
-					}
 				}
 
 				ArrayList<Area> areas = Utils.getInstance(context).getAreas();

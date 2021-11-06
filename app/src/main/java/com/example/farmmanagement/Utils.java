@@ -190,16 +190,6 @@ public class Utils
 		editor.apply();
 	}
 
-	public void removeTaskFromArea(final String areaName, final int taskId)
-	{
-		ArrayList<Area> areas = getAreas();
-		areas.stream().filter(area -> area.getName().equals(areaName))
-				.findFirst()
-				.ifPresent(a -> a.getTasks().removeIf(task -> task.getId() == taskId));
-		setAreas(areas);
-	}
-
-
 	private int getIndexById(final int id)
 	{
 		ArrayList<Task> tasks = getTasks();
