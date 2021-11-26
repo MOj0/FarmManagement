@@ -13,9 +13,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.PolygonOptions;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
@@ -45,12 +48,17 @@ public class MapsFragment extends Fragment
 		public void onMapReady(@NonNull GoogleMap googleMap)
 		{
 			mMap = googleMap;
-
 			areas = Utils.getInstance(getContext()).getAreas();
 
 			// Map areas to polygonOptions and add them to map
 			ArrayList<PolygonOptions> polygonOptions = Utils.getInstance(getContext()).getPolygonOptions();
 			ArrayList<Polygon> polygons = polygonOptions.stream().map(mMap::addPolygon).collect(Collectors.toCollection(ArrayList::new));
+
+			LatLng centerPoint = getCenterPoint(polygons);
+			if(centerPoint != null)
+			{
+				mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(centerPoint, 4));
+			}
 
 			// Set listeners for click events
 			mMap.setOnPolygonClickListener(polygon ->
@@ -97,6 +105,18 @@ public class MapsFragment extends Fragment
 			});
 		}
 	};
+
+
+	private LatLng getCenterPoint(ArrayList<Polygon> polygons)
+	{
+		if(polygons == null || polygons.isEmpty())
+		{
+			return null;
+		}
+		LatLngBounds.Builder latLngBounds = LatLngBounds.builder();
+		polygons.forEach(p -> p.getPoints().forEach(latLngBounds::include));
+		return latLngBounds.build().getCenter();
+	}
 
 
 	@Nullable
